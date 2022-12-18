@@ -62,3 +62,9 @@ class logAnalyzer():
 
         return self
 
+    def export_logs(self, output_file=None):
+        if self.logs_df is None:
+            print("please run read_logs first")
+            return
+        else:
+            self.logs_df.to_csv(output_file)
