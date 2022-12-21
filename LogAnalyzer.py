@@ -6,6 +6,15 @@ import re, string
 from tqdm import tqdm
 regex = re.compile('[%s]' % re.escape(string.punctuation))
 
+def filter_all_caps(df, column):
+    def is_all_caps(x):
+        if x is not None:
+            return all(c.isupper() for c in x)
+        else:
+            return False
+    
+    return df[df[column].apply(is_all_caps)]
+
 class logAnalyzer():
     def __init__(self, ip_list=None, log_dir=None):
         self.ip_list = ip_list
@@ -40,7 +49,7 @@ class logAnalyzer():
         # Create a Pandas dataframe from the log data
         df = pd.DataFrame(log_data, columns=["level", "timestamp", "message"])
         
-        return df
+        return filter_all_caps(df, "level")
 
     def read_logs(self):
         # Create an empty dataframe to store the combined data
@@ -48,7 +57,7 @@ class logAnalyzer():
         
         # Loop through all the CSV files in the directory
         for file in tqdm(os.listdir(self.log_dir)):
-            if file.endswith(".txt"):
+            if file.endswith(".log"):
             # Read in the CSV file
             
                 df = self.geth_logs_to_dataframe(os.path.join(self.log_dir, file))
@@ -68,3 +77,4 @@ class logAnalyzer():
             return
         else:
             self.logs_df.to_csv(output_file)
+            return
